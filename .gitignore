@@ -57,3 +57,6 @@ nunit-*.xml
 UXScoreBackend.sln.DotSettings.user
 *.user
 /.vs
+/frontend/node_modules
+/frontend/build
+frontend/package-lock.json
