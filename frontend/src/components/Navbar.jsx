@@ -42,6 +42,12 @@ const Navbar = ({ token, role, username, setToken, setRole, setUsername }) => {
                 {role === 'Admin' && (
                   <>
                     <Link 
+                      to="/admin/categories" 
+                      className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                    Category
+                    </Link>
+                    <Link 
                       to="/admin/users" 
                       className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
                     >

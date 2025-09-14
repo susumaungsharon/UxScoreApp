@@ -39,6 +39,10 @@ const App = () => {
             element={token ? <Dashboard token={token} role={role} setToken={setToken} setRole={setRole} /> : <Navigate to="/login" />}
           />
           <Route
+            path="/admin/categories"
+            element={token && role === 'Admin' ? <AdminCategories token={token} setToken={setToken} setRole={setRole} /> : <Navigate to="/login" />}
+          />
+          <Route
             path="/admin/users"
             element={token && role === 'Admin' ? <AdminUsers token={token} setToken={setToken} setRole={setRole} /> : <Navigate to="/login" />}
           />
