@@ -174,6 +174,7 @@ app.MapGet("/health", () => Results.Ok(new {
 }));
 
 await InitializeDatabaseAsync(app);
+await SeedUsersAsync(app);
 
 app.Run();
 return;
@@ -254,6 +255,78 @@ async Task InitializeDatabaseAsync(WebApplication webApplication)
     {
         webApplication.Logger.LogError(ex, "Error initializing database");
         Console.WriteLine($"Database initialization error: {ex.Message}");
+        throw;
+    }
+}
+
+async Task SeedUsersAsync(WebApplication webApplication)
+{
+    try
+    {
+        using var scope = webApplication.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        string[] roles = ["Admin", "Evaluator"];
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
+
+        const string adminEmail = "admin@uxscore.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new IdentityUser
+            {
+                UserName = "admin",
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                webApplication.Logger.LogInformation("Admin user created successfully");
+            }
+            else
+            {
+                webApplication.Logger.LogError("Failed to create admin user: {Errors}",
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+
+        const string evaluatorEmail = "evaluator@uxscore.com";
+        var evaluatorUser = await userManager.FindByEmailAsync(evaluatorEmail);
+        if (evaluatorUser == null)
+        {
+            evaluatorUser = new IdentityUser
+            {
+                UserName = "evaluator",
+                Email = evaluatorEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(evaluatorUser, "Evaluator123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(evaluatorUser, "Evaluator");
+                webApplication.Logger.LogInformation("Evaluator user created successfully");
+            }
+            else
+            {
+                webApplication.Logger.LogError("Failed to create evaluator user: {Errors}",
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        webApplication.Logger.LogError(ex, "Error seeding users");
         throw;
     }
 }

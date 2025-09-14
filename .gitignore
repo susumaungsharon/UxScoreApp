@@ -56,3 +56,4 @@ nunit-*.xml
 /.idea
 UXScoreBackend.sln.DotSettings.user
 *.user
+/.vs
