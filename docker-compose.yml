@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Database Service
+  postgres:
+    container_name: uxscoreapp-db
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: uxscoredb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Gr0up8
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uxscoreapp-network
+
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uxscoreapp-backend
+    expose:
+      - "8080"
+    ports:
+      - "5010:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://*:8080
+      - JWT_SECRET_KEY=KPgtNIgJhXLZK6nltc2NaxRkEExamnqw
+      - JWT_ISSUER=UXScore.Massey.2025.S2.Group8.API
+      - JWT_AUDIENCE=UXScore.Massey.2025.S2.Group8.Client
+      - USE_HTTPS_REDIRECTION=false
+      - ALLOWED_ORIGINS=http://localhost:3000,http://frontend
+      - DATABASE_URL=Host=postgres;Port=5432;Database=uxscoredb;Username=postgres;Password=Gr0up8;SSL Mode=Prefer;Trust Server Certificate=true;
+    depends_on:
+      - postgres
+    volumes:
+      - uxscore_data:/app/Data
+    networks:
+      - uxscoreapp-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Frontend React Service  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: uxscoreapp-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5010
+    depends_on:
+      - backend
+    networks:
+      - uxscoreapp-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  uxscore_data:
+    driver: local
+
+networks:
+  uxscoreapp-network:
+    driver: bridge
