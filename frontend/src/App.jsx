@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Evaluations from './components/Evaluations';
+import Performance from './components/Performance';
+import Report from './components/Report';
+import AdminCategories from './components/AdminCategories';
 import AdminUsers from './components/AdminUsers';
 
 const App = () => {
@@ -39,8 +43,16 @@ const App = () => {
             element={token ? <Dashboard token={token} role={role} setToken={setToken} setRole={setRole} /> : <Navigate to="/login" />}
           />
           <Route
+            path="/evaluations/:projectId/:projectName"
+            element={token ? <Evaluations token={token} role={role} /> : <Navigate to="/login" />}
+          />
+          <Route
             path="/performance"
             element={token ? <Performance token={token} /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/report"
+            element={token ? <Report token={token} /> : <Navigate to="/login" />}
           />
           <Route
             path="/admin/categories"

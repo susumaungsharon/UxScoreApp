@@ -357,7 +357,7 @@ const Performance = ({ token }) => {
         setCurrentTest(null);
         setTestUrl('');
         setShowCustomUrlInput(false);
-      }, 6000);
+      }, 4000);
 
     } catch (error) {
       console.error('Error saving performance test:', error);
