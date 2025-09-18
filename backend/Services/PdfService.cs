@@ -24,7 +24,7 @@ public class PdfService : IPdfService
         gfx.DrawString("Evaluation Report", fontTitle, XBrushes.DarkBlue, 
             new XRect(0, 20, page.Width, 30), XStringFormats.TopCenter);
         
-        gfx.DrawString($"Generated on {DateTime.Now:MMMM dd, yyyy 'at' HH:mm}", font, XBrushes.DarkGray, 
+        gfx.DrawString($"Generated on {DateTime.Now:dd/MM/yyyy}", font, XBrushes.DarkGray, 
             new XRect(0, 45, page.Width, 20), XStringFormats.TopCenter);
 
         var data = new List<object>();

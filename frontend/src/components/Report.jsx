@@ -65,6 +65,14 @@ const Report = ({ token }) => {
       fetchReportData();
     }, 100);
   };
+  
+  const getReportFilename = (extension = 'pdf') => {
+    const nzDateTime = new Date().toLocaleString('sv-SE', {
+      timeZone: 'Pacific/Auckland'
+    });
+    
+    return `evaluation_report_${nzDateTime.slice(0, 10).replace(/-/g, '')}_${nzDateTime.slice(11, 16).replace(':', '')}.${extension}`;
+  };
 
   const exportToCsv = async () => {
     try {
@@ -73,16 +81,12 @@ const Report = ({ token }) => {
       if (filters.startDate) params.append('startDate', filters.startDate);
       if (filters.endDate) params.append('endDate', filters.endDate);
 
-      const response = await apiService.get(`/api/reports/evaluation-report/csv?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
-      });
+      const blob = await apiService.getBlob(`/api/reports/evaluation-report/csv?${params}`, token);
 
-      const blob = new Blob([response], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `evaluation_report_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.download = getReportFilename('csv');
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -102,7 +106,7 @@ const Report = ({ token }) => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `evaluation_report_${new Date().toISOString().slice(0, 10)}.pdf`;
+      link.download = getReportFilename('pdf');
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -136,7 +140,7 @@ const Report = ({ token }) => {
         
         /* Add title */
         .table-container::before {
-          content: "Evaluation Report - Generated on ${new Date().toLocaleDateString()}";
+          content: "Evaluation Report - Generated on ${new Date().toLocaleString('en-GB')}";
           display: block !important;
           font-size: 18px !important;
           font-weight: bold !important;
@@ -276,7 +280,7 @@ const Report = ({ token }) => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('en-GB');
   };
 
   const calculateAverageScore = (categoryScores) => {

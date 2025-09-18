@@ -63,9 +63,14 @@ public class ReportsController(ApplicationDbContext context, IPdfService pdfServ
                     evaluation.CreatedAt,
                     UserId = evaluation.CreatedBy,
                     AverageScore = averageScore,
-                    CategoryScores = evaluation.CategoryScores.Select(cs => new { cs.Id, Category = cs.Category?.Name ?? "Unknown Category", cs.Score, cs.Comment }),
+                    CategoryScores = evaluation.CategoryScores
+                        .OrderBy(cs => cs.Category!.DisplayOrder)
+                        .Select(cs => new 
+                        { cs.Id, Category = cs.Category?.Name ?? "Unknown Category", cs.Score, cs.Comment }),
                     ScreenshotAnnotations = evaluation.CategoryScores.Where(cs => cs.Screenshot != null)
-                        .Select(cs => new { cs.Id, Category = cs.Category?.Name ?? "Unknown Category", Comment = cs.Annotation, Screenshot = cs.Screenshot != null ? Convert.ToBase64String(cs.Screenshot) : null })
+                        .OrderBy(cs => cs.Category!.DisplayOrder)
+                        .Select(cs => new 
+                            { cs.Id, Category = cs.Category?.Name ?? "Unknown Category", Comment = cs.Annotation, Screenshot = cs.Screenshot != null ? Convert.ToBase64String(cs.Screenshot) : null })
                 }));
         }
 
@@ -96,7 +101,7 @@ public class ReportsController(ApplicationDbContext context, IPdfService pdfServ
                 var averageScore = GetDynamicPropertyValue(evaluation, "AverageScore");
 
                 var baseInfo =
-                    $"\"{projectName}\",\"{projectDescription}\",\"{websiteUrl}\",\"{notes}\",\"{createdAt}\",\"{userId}\"";
+                    $"\"{projectName}\",\"{projectDescription}\",\"{websiteUrl}\",\"{notes}\",\"{Convert.ToDateTime(createdAt).ToString("dd/MM/yyyy")}\",\"{userId}\"";
 
                 var hasScores = false;
 

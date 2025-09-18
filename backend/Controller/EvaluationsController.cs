@@ -122,7 +122,7 @@ public async Task<IActionResult> CreateEvaluation([FromForm] IFormCollection for
                               User.FindFirst(ClaimTypes.Email)?.Value;
 
             var query = context.Evaluations
-                .Include(e => e.CategoryScores)
+                .Include(e => e.CategoryScores).ThenInclude(categoryScore => categoryScore.Category!)
                 .Where(e => e.CreatedBy == currentUser || User.IsInRole("Admin"));
 
             if (projectId != Guid.Empty)
@@ -142,7 +142,9 @@ public async Task<IActionResult> CreateEvaluation([FromForm] IFormCollection for
                 notes = e.Notes,
                 createdAt = e.CreatedAt,
                 createdBy = e.CreatedBy,
-                categoryScores = e.CategoryScores.Select(cs => new
+                categoryScores = e.CategoryScores
+                    .OrderBy(cs => cs.Category!.DisplayOrder)
+                    .Select(cs => new
                 {
                     id = cs.Id,
                     categoryId = cs.CategoryId,
@@ -171,7 +173,7 @@ public async Task<IActionResult> CreateEvaluation([FromForm] IFormCollection for
                               User.FindFirst(ClaimTypes.Email)?.Value;
 
             var evaluation = await context.Evaluations
-                .Include(e => e.CategoryScores)
+                .Include(e => e.CategoryScores).ThenInclude(categoryScore => categoryScore.Category!)
                 .FirstOrDefaultAsync(e => e.Id == id && (e.CreatedBy == currentUser || User.IsInRole("Admin")));
 
             if (evaluation == null)
@@ -185,7 +187,9 @@ public async Task<IActionResult> CreateEvaluation([FromForm] IFormCollection for
                 notes = evaluation.Notes,
                 createdAt = evaluation.CreatedAt,
                 createdBy = evaluation.CreatedBy,
-                categoryScores = evaluation.CategoryScores.Select(cs => new
+                categoryScores = evaluation.CategoryScores
+                    .OrderBy(cs => cs.Category!.DisplayOrder)
+                    .Select(cs => new
                 {
                     id = cs.Id,
                     categoryId = cs.CategoryId,

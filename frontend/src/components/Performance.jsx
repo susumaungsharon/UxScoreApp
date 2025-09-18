@@ -621,7 +621,7 @@ const Performance = ({ token }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(metric.testDate).toLocaleDateString()}
+                      {new Date(metric.testDate).toLocaleDateString('en-GB')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
