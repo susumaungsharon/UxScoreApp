@@ -1,2 +1,2 @@
 # UxScoreApp
-MInfSc Information Technology Professional Project
+Information Technology School Project
